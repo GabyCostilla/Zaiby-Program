@@ -2,34 +2,57 @@ var Zaira = document.querySelector('#Zaira');
 var Gaby = document.querySelector('#Gaby');
 var floor = document.querySelector('#piso');
 
-var gravity = 0.3; // Valor de la gravedad
+var gravity = 0.5; // Valor de la gravedad
 var characterVelocityZaira = 0; // Velocidad inicial del personaje Zaira en el eje vertical
 var characterVelocityGaby = 0; // Velocidad inicial del personaje Gaby en el eje vertical
 
-document.addEventListener('keydown', moveCharacter);
+var keysPressed = {}; // Almacena las teclas presionadas
 
-function moveCharacter(event) {
-  var keyPressed = event.key;
+document.addEventListener('keydown', function (event) {
+  keysPressed[event.key] = true;
+  moveCharacter();
+});
 
+document.addEventListener('keyup', function (event) {
+  delete keysPressed[event.key];
+});
+
+function moveCharacter() {
   // Mover Zaira con las flechas del teclado
-  if (keyPressed === 'ArrowLeft') {
+  if ('ArrowLeft' in keysPressed && 'ArrowUp' in keysPressed) {
+    moveUpLeft(Zaira);
+  } else if ('ArrowRight' in keysPressed && 'ArrowUp' in keysPressed) {
+    moveUpRight(Zaira);
+  } else if ('ArrowLeft' in keysPressed && 'ArrowDown' in keysPressed) {
+    moveDownLeft(Zaira);
+  } else if ('ArrowRight' in keysPressed && 'ArrowDown' in keysPressed) {
+    moveDownRight(Zaira);
+  } else if ('ArrowLeft' in keysPressed) {
     moveLeft(Zaira);
-  } else if (keyPressed === 'ArrowUp') {
+  } else if ('ArrowUp' in keysPressed) {
     moveUp(Zaira);
-  } else if (keyPressed === 'ArrowRight') {
+  } else if ('ArrowRight' in keysPressed) {
     moveRight(Zaira);
-  } else if (keyPressed === 'ArrowDown') {
+  } else if ('ArrowDown' in keysPressed) {
     moveDown(Zaira);
   }
 
   // Mover Gaby con las teclas WASD
-  if (keyPressed === 'a' || keyPressed === 'A') {
+  if (('a' in keysPressed || 'A' in keysPressed) && ('w' in keysPressed || 'W' in keysPressed)) {
+    moveUpLeft(Gaby);
+  } else if (('d' in keysPressed || 'D' in keysPressed) && ('w' in keysPressed || 'W' in keysPressed)) {
+    moveUpRight(Gaby);
+  } else if (('a' in keysPressed || 'A' in keysPressed) && ('s' in keysPressed || 'S' in keysPressed)) {
+    moveDownLeft(Gaby);
+  } else if (('d' in keysPressed || 'D' in keysPressed) && ('s' in keysPressed || 'S' in keysPressed)) {
+    moveDownRight(Gaby);
+  } else if ('a' in keysPressed || 'A' in keysPressed) {
     moveLeft(Gaby);
-  } else if (keyPressed === 'w' || keyPressed === 'W') {
+  } else if ('w' in keysPressed || 'W' in keysPressed) {
     moveUp(Gaby);
-  } else if (keyPressed === 'd' || keyPressed === 'D') {
+  } else if ('d' in keysPressed || 'D' in keysPressed) {
     moveRight(Gaby);
-  } else if (keyPressed === 's' || keyPressed === 'S') {
+  } else if ('s' in keysPressed || 'S' in keysPressed) {
     moveDown(Gaby);
   }
 }
@@ -64,6 +87,26 @@ function moveDown(character) {
   if (newTop <= window.innerHeight - character.offsetHeight) {
     character.style.top = newTop + 'px';
   }
+}
+
+function moveUpLeft(character) {
+  moveUp(character);
+  moveLeft(character);
+}
+
+function moveUpRight(character) {
+  moveUp(character);
+  moveRight(character);
+}
+
+function moveDownLeft(character) {
+  moveDown(character);
+  moveLeft(character);
+}
+
+function moveDownRight(character) {
+  moveDown(character);
+  moveRight(character);
 }
 
 function applyGravity(character, characterVelocity) {
