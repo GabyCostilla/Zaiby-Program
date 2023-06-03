@@ -1,6 +1,8 @@
 var Zaira = document.querySelector('#Zaira');
 var Gaby = document.querySelector('#Gaby');
 var floor = document.querySelector('#piso');
+var floorPosition = window.innerHeight - floor.offsetHeight;
+var characterHeight = 50; // La altura de los personajes (ajústala según sea necesario)
 
 var gravity = 0.5; // Valor de la gravedad
 var characterVelocityZaira = 0; // Velocidad inicial del personaje Zaira en el eje vertical
@@ -110,21 +112,30 @@ function moveDownRight(character) {
 }
 
 function applyGravity(character, characterVelocity) {
-  var top = parseInt(character.style.top) || 0;
-  var bottomLimit = window.innerHeight - character.offsetHeight;
-
-  if (top < bottomLimit) {
-    characterVelocity += gravity; // Incrementar la velocidad del personaje debido a la gravedad constante
-    characterVelocity = Math.min(characterVelocity, 10); // Limitar la velocidad máxima de caída
-    var newTop = top + characterVelocity;
-    character.style.top = newTop + 'px';
-  } else {
-    character.style.top = bottomLimit + 'px'; // Mantener al personaje en el límite inferior
-    characterVelocity = 0; // Reiniciar la velocidad del personaje cuando toca el suelo
+    var top = parseInt(character.style.top) || 0;
+    var bottomLimit = window.innerHeight - character.offsetHeight;
+    var floorPosition = window.innerHeight - floor.offsetHeight;
+    var characterHeight = 50; // La altura de los personajes (ajústala según sea necesario)
+  
+    if (top < bottomLimit) {
+      characterVelocity += gravity; // Incrementar la velocidad del personaje debido a la gravedad constante
+      characterVelocity = Math.min(characterVelocity, 10); // Limitar la velocidad máxima de caída
+      var newTop = top + characterVelocity;
+      character.style.top = newTop + 'px';
+    } else {
+      character.style.top = bottomLimit + 'px'; // Mantener al personaje en el límite inferior
+      characterVelocity = 0; // Reiniciar la velocidad del personaje cuando toca el suelo
+    }
+  
+    // Detección de colisión con el piso
+    if (newTop + characterHeight >= floorPosition) {
+      character.style.top = floorPosition - characterHeight + 'px';
+      characterVelocity = 0; // Reiniciar la velocidad del personaje al colisionar con el piso
+    }
+  
+    return characterVelocity;
   }
-
-  return characterVelocity;
-}
+  
 
 function updateGame() {
   characterVelocityZaira = applyGravity(Zaira, characterVelocityZaira);

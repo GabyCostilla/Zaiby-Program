@@ -1,25 +1,32 @@
-.zaiby {
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-image: url('fondo.png');
+    background-size: cover;
+  }
+  
+  .zaiby {
+    position: absolute;
     width: 100px;
     height: 100px;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-}
-
-#Zaira {
+  }
+  
+  #Zaira {
     background-color: lightgreen;
     left: 10%;
-}
-
-#Gaby {
+  }
+  
+  #Gaby {
     background-color: lightcoral;
     right: 10%;
-}
-
-#piso {
-    width: 100%;
-    height: 59px;
-    background-color: gray;
+  }
+  
+  #piso {
     position: absolute;
     bottom: 0;
-}
+    width: 100%;
+    height: 10px;
+    background-color: green;
+  }
+  
