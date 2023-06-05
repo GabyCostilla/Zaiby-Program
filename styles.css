@@ -1,32 +1,34 @@
 body {
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    background-image: url('fondo.png');
-    background-size: cover;
-  }
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-image: url('fondo.png');
+  background-size: cover;
+}
+
+.zaiby {
+  position: absolute;
+  width: 300px;
+  height: 370px;
+  background-size: cover;
+}
+
+#Zaira {
+  background-image: url('zaira.png');
   
-  .zaiby {
-    position: absolute;
-    width: 100px;
-    height: 100px;
-  }
+  left: 10%;
+}
+
+#Gaby {
+  background-image: url('gaby.png');
   
-  #Zaira {
-    background-color: lightgreen;
-    left: 10%;
-  }
-  
-  #Gaby {
-    background-color: lightcoral;
-    right: 10%;
-  }
-  
-  #piso {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 10px;
-    background-color: green;
-  }
-  
+  right: 10%;
+}
+
+#piso {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 10px;
+  background-color: green;
+}

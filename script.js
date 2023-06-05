@@ -2,146 +2,119 @@ var Zaira = document.querySelector('#Zaira');
 var Gaby = document.querySelector('#Gaby');
 var floor = document.querySelector('#piso');
 var floorPosition = window.innerHeight - floor.offsetHeight;
-var characterHeight = 50; // La altura de los personajes (ajústala según sea necesario)
+var characterHeight = 50;
+var soundEffect = new Audio('sound-effect.mp3');
+var backgroundMusic = new Audio('background-music.mp3');
 
-var gravity = 0.5; // Valor de la gravedad
-var characterVelocityZaira = 0; // Velocidad inicial del personaje Zaira en el eje vertical
-var characterVelocityGaby = 0; // Velocidad inicial del personaje Gaby en el eje vertical
+function playSoundEffect() {
+  soundEffect.currentTime = 0;
+  soundEffect.play();
+}
 
-var keysPressed = {}; // Almacena las teclas presionadas
+function playBackgroundMusic() {
+  backgroundMusic.loop = true;
+  backgroundMusic.play();
+}
+
+function stopBackgroundMusic() {
+  backgroundMusic.pause();
+  backgroundMusic.currentTime = 0;
+}
+
+document.addEventListener('keydown', function (event) {
+  if (event.key === ' ') { // Verifica si la tecla presionada es la tecla Espacio
+    playSoundEffect();
+  }
+});
+
+window.addEventListener('load', function () {
+  playBackgroundMusic();
+});
+
+
+var gravity = 0.5;
+var characterVelocityZaira = 0;
+var characterVelocityGaby = 0;
+
+var keysPressed = {};
 
 document.addEventListener('keydown', function (event) {
   keysPressed[event.key] = true;
-  moveCharacter();
 });
 
 document.addEventListener('keyup', function (event) {
   delete keysPressed[event.key];
 });
 
-function moveCharacter() {
-  // Mover Zaira con las flechas del teclado
-  if ('ArrowLeft' in keysPressed && 'ArrowUp' in keysPressed) {
-    moveUpLeft(Zaira);
-  } else if ('ArrowRight' in keysPressed && 'ArrowUp' in keysPressed) {
-    moveUpRight(Zaira);
-  } else if ('ArrowLeft' in keysPressed && 'ArrowDown' in keysPressed) {
-    moveDownLeft(Zaira);
-  } else if ('ArrowRight' in keysPressed && 'ArrowDown' in keysPressed) {
-    moveDownRight(Zaira);
-  } else if ('ArrowLeft' in keysPressed) {
-    moveLeft(Zaira);
-  } else if ('ArrowUp' in keysPressed) {
-    moveUp(Zaira);
-  } else if ('ArrowRight' in keysPressed) {
-    moveRight(Zaira);
-  } else if ('ArrowDown' in keysPressed) {
-    moveDown(Zaira);
-  }
-
-  // Mover Gaby con las teclas WASD
-  if (('a' in keysPressed || 'A' in keysPressed) && ('w' in keysPressed || 'W' in keysPressed)) {
-    moveUpLeft(Gaby);
-  } else if (('d' in keysPressed || 'D' in keysPressed) && ('w' in keysPressed || 'W' in keysPressed)) {
-    moveUpRight(Gaby);
-  } else if (('a' in keysPressed || 'A' in keysPressed) && ('s' in keysPressed || 'S' in keysPressed)) {
-    moveDownLeft(Gaby);
-  } else if (('d' in keysPressed || 'D' in keysPressed) && ('s' in keysPressed || 'S' in keysPressed)) {
-    moveDownRight(Gaby);
-  } else if ('a' in keysPressed || 'A' in keysPressed) {
-    moveLeft(Gaby);
-  } else if ('w' in keysPressed || 'W' in keysPressed) {
-    moveUp(Gaby);
-  } else if ('d' in keysPressed || 'D' in keysPressed) {
-    moveRight(Gaby);
-  } else if ('s' in keysPressed || 'S' in keysPressed) {
-    moveDown(Gaby);
-  }
-}
-
-function moveLeft(character) {
+function moveCharacter(character, dx, dy) {
   var left = parseInt(character.style.left) || 0;
-  var newLeft = left - 10;
-  if (newLeft >= 0) {
+  var top = parseInt(character.style.top) || 0;
+  var newLeft = left + dx;
+  var newTop = top + dy;
+
+  if (newLeft >= 0 && newLeft <= window.innerWidth - character.offsetWidth) {
     character.style.left = newLeft + 'px';
   }
-}
 
-function moveUp(character) {
-  var top = parseInt(character.style.top) || 0;
-  var newTop = top - 10;
-  if (newTop >= 0) {
+  if (newTop >= 0 && newTop <= window.innerHeight - character.offsetHeight) {
     character.style.top = newTop + 'px';
   }
 }
 
-function moveRight(character) {
-  var left = parseInt(character.style.left) || 0;
-  var newLeft = left + 10;
-  if (newLeft <= window.innerWidth - character.offsetWidth) {
-    character.style.left = newLeft + 'px';
-  }
-}
-
-function moveDown(character) {
-  var top = parseInt(character.style.top) || 0;
-  var newTop = top + 10;
-  if (newTop <= window.innerHeight - character.offsetHeight) {
-    character.style.top = newTop + 'px';
-  }
-}
-
-function moveUpLeft(character) {
-  moveUp(character);
-  moveLeft(character);
-}
-
-function moveUpRight(character) {
-  moveUp(character);
-  moveRight(character);
-}
-
-function moveDownLeft(character) {
-  moveDown(character);
-  moveLeft(character);
-}
-
-function moveDownRight(character) {
-  moveDown(character);
-  moveRight(character);
-}
-
-function applyGravity(character, characterVelocity) {
+function updateGame() {
+  function applyGravity(character, characterVelocity) {
     var top = parseInt(character.style.top) || 0;
     var bottomLimit = window.innerHeight - character.offsetHeight;
     var floorPosition = window.innerHeight - floor.offsetHeight;
-    var characterHeight = 50; // La altura de los personajes (ajústala según sea necesario)
-  
+
     if (top < bottomLimit) {
-      characterVelocity += gravity; // Incrementar la velocidad del personaje debido a la gravedad constante
-      characterVelocity = Math.min(characterVelocity, 10); // Limitar la velocidad máxima de caída
+      characterVelocity += gravity;
+      characterVelocity = Math.min(characterVelocity, 10);
       var newTop = top + characterVelocity;
       character.style.top = newTop + 'px';
     } else {
-      character.style.top = bottomLimit + 'px'; // Mantener al personaje en el límite inferior
-      characterVelocity = 0; // Reiniciar la velocidad del personaje cuando toca el suelo
+      character.style.top = bottomLimit + 'px';
+      characterVelocity = 0;
     }
-  
-    // Detección de colisión con el piso
+
     if (newTop + characterHeight >= floorPosition) {
       character.style.top = floorPosition - characterHeight + 'px';
-      characterVelocity = 0; // Reiniciar la velocidad del personaje al colisionar con el piso
+      characterVelocity = 0;
     }
-  
+
     return characterVelocity;
   }
-  
 
-function updateGame() {
+  if ('ArrowLeft' in keysPressed) {
+    moveCharacter(Zaira, -10, 0);
+  }
+  if ('ArrowRight' in keysPressed) {
+    moveCharacter(Zaira, 10, 0);
+  }
+  if ('ArrowUp' in keysPressed) {
+    moveCharacter(Zaira, 0, -10);
+  }
+  if ('ArrowDown' in keysPressed) {
+    moveCharacter(Zaira, 0, 10);
+  }
+
+  if ('a' in keysPressed || 'A' in keysPressed) {
+    moveCharacter(Gaby, -10, 0);
+  }
+  if ('d' in keysPressed || 'D' in keysPressed) {
+    moveCharacter(Gaby, 10, 0);
+  }
+  if ('w' in keysPressed || 'W' in keysPressed) {
+    moveCharacter(Gaby, 0, -10);
+  }
+  if ('s' in keysPressed || 'S' in keysPressed) {
+    moveCharacter(Gaby, 0, 10);
+  }
+
   characterVelocityZaira = applyGravity(Zaira, characterVelocityZaira);
   characterVelocityGaby = applyGravity(Gaby, characterVelocityGaby);
 
   requestAnimationFrame(updateGame);
 }
 
-updateGame();
+requestAnimationFrame(updateGame);
