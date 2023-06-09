@@ -5,6 +5,16 @@ var floorPosition = window.innerHeight - floor.offsetHeight;
 var characterHeight = 50;
 var soundEffect = new Audio('sound-effect.mp3');
 var backgroundMusic = new Audio('background-music.mp3');
+var score = 0;
+
+var gravity = 0.5;
+var characterVelocityZaira = 0;
+var characterVelocityGaby = 0;
+
+var keysPressed = {};
+
+var heartContainer = document.getElementById('heart-container');
+var hearts = [];
 
 function playSoundEffect() {
   soundEffect.currentTime = 0;
@@ -22,7 +32,7 @@ function stopBackgroundMusic() {
 }
 
 document.addEventListener('keydown', function (event) {
-  if (event.key === ' ') { // Verifica si la tecla presionada es la tecla Espacio
+  if (event.key === ' ') {
     playSoundEffect();
   }
 });
@@ -30,13 +40,6 @@ document.addEventListener('keydown', function (event) {
 window.addEventListener('load', function () {
   playBackgroundMusic();
 });
-
-
-var gravity = 0.5;
-var characterVelocityZaira = 0;
-var characterVelocityGaby = 0;
-
-var keysPressed = {};
 
 document.addEventListener('keydown', function (event) {
   keysPressed[event.key] = true;
@@ -114,7 +117,59 @@ function updateGame() {
   characterVelocityZaira = applyGravity(Zaira, characterVelocityZaira);
   characterVelocityGaby = applyGravity(Gaby, characterVelocityGaby);
 
+  // Generar corazones aleatoriamente
+  if (Math.random() < 0.02) { // Ajusta este valor para controlar la frecuencia de generación
+    var heart = document.createElement('div');
+    heart.className = 'heart';
+    heart.style.left = Math.random() * (window.innerWidth - 30) + 'px'; // Ajusta el tamaño del corazón (30) si es necesario
+    heart.style.top = '0px';
+    heartContainer.appendChild(heart);
+    hearts.push(heart);
+  }
+
+  // Hacer caer los corazones y verificar si los personajes los atrapan
+  hearts.forEach(function (heart, index) {
+    var top = parseInt(heart.style.top) || 0;
+    var newTop = top + 5; // Ajusta la velocidad de caída del corazón
+
+    if (newTop >= window.innerHeight) {
+      heartContainer.removeChild(heart);
+      hearts.splice(index, 1);
+    } else {
+      heart.style.top = newTop + 'px';
+
+      // Verificar si los personajes atrapan los corazones
+      var zairaRect = Zaira.getBoundingClientRect();
+      var gabyRect = Gaby.getBoundingClientRect();
+      var heartRect = heart.getBoundingClientRect();
+
+      if (isCollision(zairaRect, heartRect)) {
+        heartContainer.removeChild(heart);
+        hearts.splice(index, 1);
+        increaseScore(1); // Ajusta la cantidad de puntos que se suman al atrapar un corazón
+      } else if (isCollision(gabyRect, heartRect)) {
+        heartContainer.removeChild(heart);
+        hearts.splice(index, 1);
+        increaseScore(1); // Ajusta la cantidad de puntos que se suman al atrapar un corazón
+      }
+    }
+  });
+
   requestAnimationFrame(updateGame);
+}
+
+function isCollision(rect1, rect2) {
+  return (
+    rect1.left < rect2.right &&
+    rect1.right > rect2.left &&
+    rect1.top < rect2.bottom &&
+    rect1.bottom > rect2.top
+  );
+}
+
+function increaseScore(points) {
+  score += points;
+  document.getElementById('score').textContent = 'Puntaje: ' + score;
 }
 
 requestAnimationFrame(updateGame);
