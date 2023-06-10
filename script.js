@@ -16,6 +16,12 @@ var keysPressed = {};
 var heartContainer = document.getElementById('heart-container');
 var hearts = [];
 
+var totalLives = 3;
+var remainingLives = totalLives;
+
+var livesElement = document.getElementById('lives');
+livesElement.textContent = 'Vidas: ' + remainingLives;
+
 function playSoundEffect() {
   soundEffect.currentTime = 0;
   soundEffect.play();
@@ -62,6 +68,15 @@ function moveCharacter(character, dx, dy) {
   if (newTop >= 0 && newTop <= window.innerHeight - character.offsetHeight) {
     character.style.top = newTop + 'px';
   }
+}
+
+function createHeart() {
+  var heart = document.createElement('div');
+  heart.className = 'heart';
+  heart.style.left = Math.random() * (window.innerWidth - 50) + 'px';
+  heart.style.top = '0px';
+  heartContainer.appendChild(heart);
+  hearts.push(heart);
 }
 
 function updateGame() {
@@ -117,28 +132,17 @@ function updateGame() {
   characterVelocityZaira = applyGravity(Zaira, characterVelocityZaira);
   characterVelocityGaby = applyGravity(Gaby, characterVelocityGaby);
 
-  // Generar corazones aleatoriamente
-  if (Math.random() < 0.02) { // Ajusta este valor para controlar la frecuencia de generación
-    var heart = document.createElement('div');
-    heart.className = 'heart';
-    heart.style.left = Math.random() * (window.innerWidth - 30) + 'px'; // Ajusta el tamaño del corazón (30) si es necesario
-    heart.style.top = '0px';
-    heartContainer.appendChild(heart);
-    hearts.push(heart);
-  }
-
-  // Hacer caer los corazones y verificar si los personajes los atrapan
   hearts.forEach(function (heart, index) {
     var top = parseInt(heart.style.top) || 0;
-    var newTop = top + 5; // Ajusta la velocidad de caída del corazón
+    var newTop = top + 5;
 
     if (newTop >= window.innerHeight) {
       heartContainer.removeChild(heart);
       hearts.splice(index, 1);
+      reduceLives(1);
     } else {
       heart.style.top = newTop + 'px';
 
-      // Verificar si los personajes atrapan los corazones
       var zairaRect = Zaira.getBoundingClientRect();
       var gabyRect = Gaby.getBoundingClientRect();
       var heartRect = heart.getBoundingClientRect();
@@ -146,16 +150,24 @@ function updateGame() {
       if (isCollision(zairaRect, heartRect)) {
         heartContainer.removeChild(heart);
         hearts.splice(index, 1);
-        increaseScore(1); // Ajusta la cantidad de puntos que se suman al atrapar un corazón
+        increaseScore(1);
       } else if (isCollision(gabyRect, heartRect)) {
         heartContainer.removeChild(heart);
         hearts.splice(index, 1);
-        increaseScore(1); // Ajusta la cantidad de puntos que se suman al atrapar un corazón
+        increaseScore(1);
       }
     }
   });
 
-  requestAnimationFrame(updateGame);
+  if (Math.random() < 0.01) {
+    createHeart();
+  }
+
+  if (remainingLives > 0) {
+    requestAnimationFrame(updateGame);
+  } else {
+    endGame();
+  }
 }
 
 function isCollision(rect1, rect2) {
@@ -172,4 +184,37 @@ function increaseScore(points) {
   document.getElementById('score').textContent = 'Puntaje: ' + score;
 }
 
-requestAnimationFrame(updateGame);
+function endGame() {
+  stopBackgroundMusic();
+  alert('¡Game Over! Tu puntaje final es: ' + score);
+  resetGame(); // Reiniciar el juego cuando se pierdan todas las vidas
+}
+
+function resetGame() {
+  Zaira.style.left = '0px';
+  Zaira.style.top = '0px';
+  Gaby.style.left = '0px';
+  Gaby.style.top = '0px';
+  hearts.forEach(function (heart) {
+    heartContainer.removeChild(heart);
+  });
+  hearts = [];
+  score = 0;
+  remainingLives = totalLives;
+  document.getElementById('score').textContent = 'Puntaje: ' + score;
+  document.getElementById('lives').textContent = 'Vidas: ' + remainingLives;
+  characterVelocityZaira = 0; // Reiniciar la velocidad de Zaira
+  characterVelocityGaby = 0; // Reiniciar la velocidad de Gaby
+  updateGame(); // Iniciar el bucle del juego
+}
+
+function reduceLives(amount) {
+  remainingLives -= amount;
+  document.getElementById('lives').textContent = 'Vidas: ' + remainingLives;
+
+  if (remainingLives <= 0) {
+    endGame(); // Llamar a la función endGame cuando se pierdan todas las vidas
+  }
+}
+
+updateGame(); // Iniciar el bucle del juego

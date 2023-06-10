@@ -8,8 +8,15 @@ body {
 .score-container {
   font-size: 33px;
   font-weight: bold;
-  color: black;
+  color: lightcoral;
 }
+
+#lives {
+  font-family: Arial, sans-serif;
+  font-size: 33px;
+  color: greenyellow;
+}
+
 
 #heart-container {
   position: absolute;
