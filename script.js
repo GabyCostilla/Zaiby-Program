@@ -6,6 +6,9 @@ var characterHeight = 50;
 var soundEffect = new Audio('sound-effect.mp3');
 var backgroundMusic = new Audio('background-music.mp3');
 var score = 0;
+var time = 60; // Tiempo inicial en segundos
+var timerElement = document.getElementById('timer');
+
 
 var gravity = 0.5;
 var characterVelocityZaira = 0;
@@ -70,15 +73,6 @@ function moveCharacter(character, dx, dy) {
   }
 }
 
-function createHeart() {
-  var heart = document.createElement('div');
-  heart.className = 'heart';
-  heart.style.left = Math.random() * (window.innerWidth - 50) + 'px';
-  heart.style.top = '0px';
-  heartContainer.appendChild(heart);
-  hearts.push(heart);
-}
-
 function updateGame() {
   function applyGravity(character, characterVelocity) {
     var top = parseInt(character.style.top) || 0;
@@ -101,6 +95,18 @@ function updateGame() {
     }
 
     return characterVelocity;
+  }
+
+  // Actualizar el temporizador
+  timerElement.textContent = 'Tiempo: ' + time + 's';
+
+  // Reducir el tiempo en cada frame
+  time--;
+
+   // Verificar si el tiempo se ha agotado
+   if (time <= 0) {
+    endGame();
+    return;
   }
 
   if ('ArrowLeft' in keysPressed) {
@@ -159,15 +165,19 @@ function updateGame() {
     }
   });
 
-  if (Math.random() < 0.01) {
-    createHeart();
-  }
-
   if (remainingLives > 0) {
     requestAnimationFrame(updateGame);
   } else {
     endGame();
   }
+}
+
+function createHeart() {
+  var heart = document.createElement('div');
+  heart.classList.add('heart');
+  heart.style.left = Math.random() * (window.innerWidth - 50) + 'px';
+  heartContainer.appendChild(heart);
+  hearts.push(heart);
 }
 
 function isCollision(rect1, rect2) {
@@ -186,8 +196,8 @@ function increaseScore(points) {
 
 function endGame() {
   stopBackgroundMusic();
-  alert('¡Game Over! Tu puntaje final es: ' + score);
-  resetGame(); // Reiniciar el juego cuando se pierdan todas las vidas
+  alert('¡Game Over! Tu puntaje final es: ' + score + ' puntos');
+  resetGame();
 }
 
 function resetGame() {
@@ -203,9 +213,9 @@ function resetGame() {
   remainingLives = totalLives;
   document.getElementById('score').textContent = 'Puntaje: ' + score;
   document.getElementById('lives').textContent = 'Vidas: ' + remainingLives;
-  characterVelocityZaira = 0; // Reiniciar la velocidad de Zaira
-  characterVelocityGaby = 0; // Reiniciar la velocidad de Gaby
-  updateGame(); // Iniciar el bucle del juego
+  characterVelocityZaira = 0;
+  characterVelocityGaby = 0;
+  requestAnimationFrame(updateGame);
 }
 
 function reduceLives(amount) {
@@ -213,8 +223,10 @@ function reduceLives(amount) {
   document.getElementById('lives').textContent = 'Vidas: ' + remainingLives;
 
   if (remainingLives <= 0) {
-    endGame(); // Llamar a la función endGame cuando se pierdan todas las vidas
+    endGame();
   }
 }
 
-updateGame(); // Iniciar el bucle del juego
+setInterval(createHeart, 2000); // Crear un corazón cada 2 segundos
+
+updateGame();
