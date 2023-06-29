@@ -5,6 +5,7 @@ body {
   background-image: url('fondo.png');
   background-size: cover;
 }
+
 .score-container {
   font-size: 33px;
   font-weight: bold;
@@ -16,7 +17,6 @@ body {
   font-size: 33px;
   color: greenyellow;
 }
-
 
 #heart-container {
   position: absolute;
@@ -37,8 +37,6 @@ body {
   background-repeat: no-repeat;
 }
 
-
-
 .zaiby {
   position: absolute;
   width: 300px;
@@ -48,13 +46,11 @@ body {
 
 #Zaira {
   background-image: url('zaira.png');
-  
   left: 10%;
 }
 
 #Gaby {
   background-image: url('gaby.png');
-  
   right: 10%;
 }
 
