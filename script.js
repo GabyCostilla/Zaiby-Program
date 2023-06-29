@@ -6,9 +6,8 @@ var characterHeight = 50;
 var soundEffect = new Audio('sound-effect.mp3');
 var backgroundMusic = new Audio('background-music.mp3');
 var score = 0;
-var time = 60; // Tiempo inicial en segundos
+var time = 6000; // Tiempo inicial en segundos
 var timerElement = document.getElementById('timer');
-
 
 var gravity = 0.5;
 var characterVelocityZaira = 0;
@@ -40,23 +39,17 @@ function stopBackgroundMusic() {
   backgroundMusic.currentTime = 0;
 }
 
-document.addEventListener('keydown', function (event) {
+function handleKeyDown(event) {
   if (event.key === ' ') {
     playSoundEffect();
   }
-});
-
-window.addEventListener('load', function () {
-  playBackgroundMusic();
-});
-
-document.addEventListener('keydown', function (event) {
+  
   keysPressed[event.key] = true;
-});
+}
 
-document.addEventListener('keyup', function (event) {
+function handleKeyUp(event) {
   delete keysPressed[event.key];
-});
+}
 
 function moveCharacter(character, dx, dy) {
   var left = parseInt(character.style.left) || 0;
@@ -73,38 +66,95 @@ function moveCharacter(character, dx, dy) {
   }
 }
 
-function updateGame() {
-  function applyGravity(character, characterVelocity) {
-    var top = parseInt(character.style.top) || 0;
-    var bottomLimit = window.innerHeight - character.offsetHeight;
-    var floorPosition = window.innerHeight - floor.offsetHeight;
+function applyGravity(character, characterVelocity) {
+  var top = parseInt(character.style.top) || 0;
+  var bottomLimit = window.innerHeight - character.offsetHeight;
+  var floorPosition = window.innerHeight - floor.offsetHeight;
 
-    if (top < bottomLimit) {
-      characterVelocity += gravity;
-      characterVelocity = Math.min(characterVelocity, 10);
-      var newTop = top + characterVelocity;
-      character.style.top = newTop + 'px';
-    } else {
-      character.style.top = bottomLimit + 'px';
-      characterVelocity = 0;
-    }
-
-    if (newTop + characterHeight >= floorPosition) {
-      character.style.top = floorPosition - characterHeight + 'px';
-      characterVelocity = 0;
-    }
-
-    return characterVelocity;
+  if (top < bottomLimit) {
+    characterVelocity += gravity;
+    characterVelocity = Math.min(characterVelocity, 10);
+    var newTop = top + characterVelocity;
+    character.style.top = newTop + 'px';
+  } else {
+    character.style.top = bottomLimit + 'px';
+    characterVelocity = 0;
   }
 
-  // Actualizar el temporizador
+  if (newTop + characterHeight >= floorPosition) {
+    character.style.top = floorPosition - characterHeight + 'px';
+    characterVelocity = 0;
+  }
+
+  return characterVelocity;
+}
+
+function isCollision(rect1, rect2) {
+  return (
+    rect1.left < rect2.right &&
+    rect1.right > rect2.left &&
+    rect1.top < rect2.bottom &&
+    rect1.bottom > rect2.top
+  );
+}
+
+function increaseScore(points) {
+  score += points;
+  document.getElementById('score').textContent = 'Puntaje: ' + score;
+}
+
+function reduceLives(amount) {
+  remainingLives -= amount;
+  document.getElementById('lives').textContent = 'Vidas: ' + remainingLives;
+
+  if (remainingLives <= 0) {
+    endGame();
+  }
+}
+
+function createHeart() {
+  var heart = document.createElement('div');
+  heart.classList.add('heart');
+  heart.style.left = Math.random() * (window.innerWidth - 50) + 'px';
+  heartContainer.appendChild(heart);
+  hearts.push(heart);
+}
+
+function checkHeartCollision() {
+  hearts.forEach(function (heart, index) {
+    var top = parseInt(heart.style.top) || 0;
+    var newTop = top + 5;
+
+    if (newTop >= window.innerHeight) {
+      heartContainer.removeChild(heart);
+      hearts.splice(index, 1);
+      reduceLives(1);
+    } else {
+      heart.style.top = newTop + 'px';
+
+      var zairaRect = Zaira.getBoundingClientRect();
+      var gabyRect = Gaby.getBoundingClientRect();
+      var heartRect = heart.getBoundingClientRect();
+
+      if (isCollision(zairaRect, heartRect)) {
+        heartContainer.removeChild(heart);
+        hearts.splice(index, 1);
+        increaseScore(1);
+      } else if (isCollision(gabyRect, heartRect)) {
+        heartContainer.removeChild(heart);
+        hearts.splice(index, 1);
+        increaseScore(1);
+      }
+    }
+  });
+}
+
+function updateGame() {
   timerElement.textContent = 'Tiempo: ' + time + 's';
 
-  // Reducir el tiempo en cada frame
   time--;
 
-   // Verificar si el tiempo se ha agotado
-   if (time <= 0) {
+  if (time <= 0) {
     endGame();
     return;
   }
@@ -138,60 +188,13 @@ function updateGame() {
   characterVelocityZaira = applyGravity(Zaira, characterVelocityZaira);
   characterVelocityGaby = applyGravity(Gaby, characterVelocityGaby);
 
-  hearts.forEach(function (heart, index) {
-    var top = parseInt(heart.style.top) || 0;
-    var newTop = top + 5;
-
-    if (newTop >= window.innerHeight) {
-      heartContainer.removeChild(heart);
-      hearts.splice(index, 1);
-      reduceLives(1);
-    } else {
-      heart.style.top = newTop + 'px';
-
-      var zairaRect = Zaira.getBoundingClientRect();
-      var gabyRect = Gaby.getBoundingClientRect();
-      var heartRect = heart.getBoundingClientRect();
-
-      if (isCollision(zairaRect, heartRect)) {
-        heartContainer.removeChild(heart);
-        hearts.splice(index, 1);
-        increaseScore(1);
-      } else if (isCollision(gabyRect, heartRect)) {
-        heartContainer.removeChild(heart);
-        hearts.splice(index, 1);
-        increaseScore(1);
-      }
-    }
-  });
+  checkHeartCollision();
 
   if (remainingLives > 0) {
     requestAnimationFrame(updateGame);
   } else {
     endGame();
   }
-}
-
-function createHeart() {
-  var heart = document.createElement('div');
-  heart.classList.add('heart');
-  heart.style.left = Math.random() * (window.innerWidth - 50) + 'px';
-  heartContainer.appendChild(heart);
-  hearts.push(heart);
-}
-
-function isCollision(rect1, rect2) {
-  return (
-    rect1.left < rect2.right &&
-    rect1.right > rect2.left &&
-    rect1.top < rect2.bottom &&
-    rect1.bottom > rect2.top
-  );
-}
-
-function increaseScore(points) {
-  score += points;
-  document.getElementById('score').textContent = 'Puntaje: ' + score;
 }
 
 function endGame() {
@@ -218,15 +221,8 @@ function resetGame() {
   requestAnimationFrame(updateGame);
 }
 
-function reduceLives(amount) {
-  remainingLives -= amount;
-  document.getElementById('lives').textContent = 'Vidas: ' + remainingLives;
-
-  if (remainingLives <= 0) {
-    endGame();
-  }
-}
-
-setInterval(createHeart, 2000); // Crear un corazón cada 2 segundos
-
+document.addEventListener('keydown', handleKeyDown);
+document.addEventListener('keyup', handleKeyUp);
+window.addEventListener('load', playBackgroundMusic);
+setInterval(createHeart, 2000);
 updateGame();
