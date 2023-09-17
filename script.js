@@ -1,28 +1,46 @@
-var Zaira = document.querySelector('#Zaira');
-var Gaby = document.querySelector('#Gaby');
-var floor = document.querySelector('#piso');
-var floorPosition = window.innerHeight - floor.offsetHeight;
-var characterHeight = 50;
-var soundEffect = new Audio('sound-effect.mp3');
-var backgroundMusic = new Audio('background-music.mp3');
-var score = 0;
-var time = 6000; // Tiempo inicial en segundos
-var timerElement = document.getElementById('timer');
+var Zaira, Gaby, floor, floorPosition, characterHeight, soundEffect, backgroundMusic, score, time, timerElement, gravity, characterVelocityZaira, characterVelocityGaby, keysPressed, heartContainer, hearts, totalLives, remainingLives, livesElement;
 
-var gravity = 0.5;
-var characterVelocityZaira = 0;
-var characterVelocityGaby = 0;
+function initializeGame() {
 
-var keysPressed = {};
+  document.getElementById('start-button').addEventListener('click', startGame);
+  document.getElementById('game-content').style.display = 'none';
 
-var heartContainer = document.getElementById('heart-container');
-var hearts = [];
+  Zaira = document.querySelector('#Zaira');
+  Gaby = document.querySelector('#Gaby');
+  floor = document.querySelector('#piso');
+  floorPosition = window.innerHeight - floor.offsetHeight;
+  characterHeight = 50;
+  soundEffect = new Audio('sound-effect.mp3');
+  backgroundMusic = new Audio('background-music.mp3');
+  score = 0;
+  time = 6000; // Tiempo inicial en segundos
+  timerElement = document.getElementById('timer');
 
-var totalLives = 3;
-var remainingLives = totalLives;
+  gravity = 0.5;
+  characterVelocityZaira = 0;
+  characterVelocityGaby = 0;
 
-var livesElement = document.getElementById('lives');
-livesElement.textContent = 'Vidas: ' + remainingLives;
+  keysPressed = {};
+
+  heartContainer = document.getElementById('heart-container');
+  hearts = [];
+
+  totalLives = 3;
+  remainingLives = totalLives;
+
+  livesElement = document.getElementById('lives');
+  livesElement.textContent = 'Vidas: ' + remainingLives;
+
+  document.addEventListener('keydown', handleKeyDown);
+  document.addEventListener('keyup', handleKeyUp);
+  document.getElementById('start-button').addEventListener('click', startGame);
+
+  // Ocultar el contenido del juego al principio
+  document.getElementById('game-content').style.display = 'none';
+
+  // Iniciar música de fondo
+  playBackgroundMusic();
+}
 
 function playSoundEffect() {
   soundEffect.currentTime = 0;
@@ -196,6 +214,15 @@ function updateGame() {
   }
 }
 
+function startGame() {
+  // Ocultar el menú de inicio
+  document.getElementById('start-menu').style.display = 'none';
+  // Mostrar el contenido del juego
+  document.getElementById('game-content').style.display = 'block';
+  // Iniciar el juego
+  updateGame();
+}
+
 function endGame() {
   stopBackgroundMusic();
   alert('¡Game Over! Tu puntaje final es: ' + score + ' puntos');
@@ -217,11 +244,7 @@ function resetGame() {
   document.getElementById('lives').textContent = 'Vidas: ' + remainingLives;
   characterVelocityZaira = 0;
   characterVelocityGaby = 0;
-  requestAnimationFrame(updateGame);
 }
 
-document.addEventListener('keydown', handleKeyDown);
-document.addEventListener('keyup', handleKeyUp);
-window.addEventListener('load', playBackgroundMusic);
+window.addEventListener('load', initializeGame);
 setInterval(createHeart, 2000);
-updateGame();

@@ -6,6 +6,45 @@ body {
   background-size: cover;
 }
 
+.menu-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+#titulo {
+  font-size: 24px;
+  font-family: "Calibri", Arial, sans-serif;
+  text-align: center;
+  color: #ff1d44;
+}
+
+
+
+
+#start-button {
+  font-size: 24px;
+  padding: 10px 20px;
+  background-color: #74bf9d;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+#start-menu {
+  background-image: url('https://www.ttamayo.com/wp-content/uploads/2021/11/https-wwwmuseothyssenorg-sites-default-files-styles-full-resolution-public-imagen-obras-descarga-ctb1999112-nubes-septiembrex800.jpg');
+  background-size: cover; 
+  background-repeat: no-repeat; 
+}
+
+#game-container {
+  background-image: url('fondo.png'); 
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
 .score-container {
   font-size: 33px;
   font-weight: bold;
