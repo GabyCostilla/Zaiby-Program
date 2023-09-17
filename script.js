@@ -43,7 +43,6 @@ function handleKeyDown(event) {
   if (event.key === ' ') {
     playSoundEffect();
   }
-  
   keysPressed[event.key] = true;
 }
 
